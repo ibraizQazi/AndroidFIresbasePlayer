@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "159087907140",
+    "firebase_url": "https://fire-playerapp.firebaseio.com",
+    "project_id": "fire-playerapp",
+    "storage_bucket": "fire-playerapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:159087907140:android:1549d1862ad90976",
+        "android_client_info": {
+          "package_name": "com.ibraiz.firebaseplayerapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "159087907140-up4844vjcjfqvup0bqvhv6mlk43pee9a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ibraiz.firebaseplayerapp",
+            "certificate_hash": "8dd0d241ee9fa4e1170fbb70737a663a83bfc11d"
+          }
+        },
+        {
+          "client_id": "159087907140-tgej9p7bkpkret9okqd6r4s4guedbl9e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOOb4mZu1AdnfgnJxVgYatJ70c5w0dIiI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "159087907140-tgej9p7bkpkret9okqd6r4s4guedbl9e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
