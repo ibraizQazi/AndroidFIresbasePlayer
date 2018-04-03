@@ -1,5 +1,5 @@
 package com.ibraiz.firebaseplayerapp.viewmodels
 
-import com.ibraiz.firebaseplayerapp.models.VideoItem
+import com.ibraiz.firebaseplayerapp.recyclerview.ViewType
 
-data class VideoList(val videoItems: List<VideoItem>, val message: String, val error: Throwable? = null)
+data class VideosList(val videoItems: List<ViewType>, val message: String, val error: Throwable? = null)
