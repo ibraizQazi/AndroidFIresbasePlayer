@@ -8,7 +8,13 @@ import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import com.google.firebase.database.DatabaseReference
 import com.ibraiz.firebaseplayerapp.models.VideoItem
+import com.ibraiz.firebaseplayerapp.utils.replaceFragment
+import com.ibraiz.firebaseplayerapp.view.VideoCountFragment
+import com.ibraiz.firebaseplayerapp.view.VideoPlayerFragment
 import com.ibraiz.firebaseplayerapp.view.VideosListFragment
+import com.ibraiz.firebaseplayerapp.view.SmartFragmentStatePagerAdapter
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -16,18 +22,16 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mPagerAdapter: FragmentPagerAdapter
     private lateinit var mViewPager: ViewPager
 
+    private lateinit var adapterViewPager: SmartFragmentStatePagerAdapter
 
-/*    override fun onStart() {
-        super.onStart()
-        //loadDatabase(firebaseInstanceRef)
-    }*/
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         mPagerAdapter = object : FragmentPagerAdapter(supportFragmentManager) {
-            private val mFragments = arrayOf<Fragment>(VideosListFragment(), Fragment(), Fragment())
+            private val mFragments = arrayOf<Fragment>(VideosListFragment(), VideoCountFragment(), VideoPlayerFragment())
             private val mFragmentNames = arrayOf("Vd Lst", "Vd Cnt", "Plyr")
             override fun getItem(position: Int): Fragment {
                 return mFragments[position]
@@ -47,6 +51,8 @@ class MainActivity : AppCompatActivity() {
         val tabLayout = findViewById<TabLayout>(R.id.tabs)
         tabLayout.setupWithViewPager(mViewPager)
     }
+
+
 
  /*   fun loadDatabase(firebaseDataRef: DatabaseReference) {
 

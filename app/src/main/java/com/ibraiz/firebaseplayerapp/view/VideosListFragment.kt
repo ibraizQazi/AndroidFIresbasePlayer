@@ -11,6 +11,9 @@ import android.widget.Toast
 import com.ibraiz.firebaseplayerapp.App
 import com.ibraiz.firebaseplayerapp.R
 import com.ibraiz.firebaseplayerapp.recyclerview.VideoListRecyclerviewAdapter
+import com.ibraiz.firebaseplayerapp.utils.inflate
+import com.ibraiz.firebaseplayerapp.utils.replaceFragment
+import com.ibraiz.firebaseplayerapp.utils.toast
 import com.ibraiz.firebaseplayerapp.viewmodels.VideosList
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -20,11 +23,11 @@ import java.net.ConnectException
 
 class VideosListFragment : MvvmFragment() {
 
-    val videoListViewModel = App.injectVideoListViewModel()
-    val firebaseRef = App.injectFirebaseDataRef()
+    private val videoListViewModel = App.injectVideoListViewModel()
+    private val firebaseRef = App.injectFirebaseDataRef()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.videos_fragment, container, false)
+        return container?.inflate(R.layout.videos_fragment, false)
     }
 
     override fun onStart() {
@@ -34,32 +37,43 @@ class VideosListFragment : MvvmFragment() {
             layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
 
         }
-        subscribe(videoListViewModel.getVideos(firebaseRef)
+        subscribe(disposable = videoListViewModel.getVideos(firebaseRef)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Timber.d("Received UIModel with ${it.videoItems.size} videoItems.")
-                    showVideos(it)
-                }, {
-                    Timber.w(it)
-                    showError()
-                }))
+                .subscribe(
+                        {
+                            Timber.d("Received UIModel with ${it.videoItems.size} videoItems.")
+                            showVideos(it)
+                        },
+                        {
+                            Timber.w(it)
+                        }
+                ))
     }
 
-    fun showVideos(data: VideosList) {
+    private fun showVideos(data: VideosList) {
         when {
             data.error == null -> {
                 recyclerViewVideoList.adapter = VideoListRecyclerviewAdapter(data.videoItems){
-                    Toast.makeText(context, "videoItem clicked :) "+it.videoName, Toast.LENGTH_SHORT).show()
+                    context?.toast("videoItem clicked :) "+it.videoName)
+                    this.videoListViewModel.viewModelVideoItem = it
+                    this.videoListViewModel.incCount(firebaseRef)
+                    startVideoPlayerFragment()
                 }
             }
             data.error is ConnectException -> Timber.d("No connection, maybe inform user that data loaded from DB.")
 
-            else -> showError()
+            else -> context?.toast("error occurred :(")
         }
     }
 
-    fun showError() {
-        Toast.makeText(context, "An error occurred :(", Toast.LENGTH_SHORT).show()
+    private fun startVideoPlayerFragment(){
+        val videoPlayerFragment = VideoPlayerFragment.newInstance()
+    }
+
+    companion object {
+        private val TAG = "VideoListFragment"
+
+        @JvmStatic fun newInstance() = VideosListFragment()
     }
 }

@@ -5,10 +5,12 @@ import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import com.ibraiz.firebaseplayerapp.App
 import com.ibraiz.firebaseplayerapp.R
 import com.ibraiz.firebaseplayerapp.models.OtherItem
 import com.ibraiz.firebaseplayerapp.models.VideoItem
 import com.ibraiz.firebaseplayerapp.utils.inflate
+import com.ibraiz.firebaseplayerapp.utils.toast
 import kotlinx.android.synthetic.main.other_viewholder.view.*
 import kotlinx.android.synthetic.main.video_viewholder.view.*
 
@@ -55,8 +57,7 @@ class VideoListRecyclerviewAdapter ( val items: List<ViewType>, val listener: (V
                 videoName.text = "Name: ${dataObj.videoName}"
                 videoCount.text = "Count: ${dataObj.count}"
                 deleteBtn.setOnClickListener{
-                    it.setBackgroundColor(Color.GREEN)
-                    Toast.makeText(context, "Delete request sent :(", Toast.LENGTH_SHORT).show()
+                    context?.toast( "Delete request sent :(")
                 }
                 setOnClickListener { listener(dataObj) }
             }

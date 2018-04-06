@@ -14,14 +14,16 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter
 import android.text.method.TextKeyListener.clear
 import com.google.firebase.database.ValueEventListener
 import com.ibraiz.firebaseplayerapp.recyclerview.ViewType
+import io.reactivex.Completable
+import io.reactivex.Flowable
 
 
 class VideoRepository{
 
 
 
-    fun getVideosFromFirebase(postRef: DatabaseReference): Observable<List<ViewType>> {
-        val videoList = ArrayList<ViewType>()
+    fun getVideosFromFirebase(postRef: DatabaseReference): Flowable<List<VideoItem>> {
+        val videoList = ArrayList<VideoItem>()
  /*       postRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onCancelled(databaseError: DatabaseError?) {
                 Timber.d("The read failed: " + databaseError.message)
@@ -63,30 +65,32 @@ class VideoRepository{
         })
 
 
-        return Observable.just(videoList)
+        return Flowable.fromArray(videoList)
     }
 
-    fun incVideoCount(postRef: DatabaseReference) {
+    fun incVideoCount(postRef: DatabaseReference) : Completable {
 
-        postRef.runTransaction(object : Transaction.Handler {
-            override fun doTransaction(mutableData: MutableData): Transaction.Result {
-                val value = mutableData.getValue(VideoItem::class.java)
-                if (value?.count == null) {
-                    mutableData.value = 0
-                } else {
-                    mutableData.value = value.count?.inc()
+        return Completable.fromAction {
+
+            postRef.runTransaction(object : Transaction.Handler {
+                override fun doTransaction(mutableData: MutableData): Transaction.Result {
+                    val value = mutableData.getValue(VideoItem::class.java)
+                    if (value?.count == null) {
+                        mutableData.value = 0
+                    } else {
+                        mutableData.value = value.count?.inc()
+                    }
+
+                    return Transaction.success(mutableData)
                 }
 
-                return Transaction.success(mutableData)
-            }
-
-            override fun onComplete(databaseError: DatabaseError, b: Boolean, dataSnapshot: DataSnapshot) {
-                Timber.d("transaction:onComplete:$databaseError")
-            }
-        })
+                override fun onComplete(databaseError: DatabaseError, b: Boolean, dataSnapshot: DataSnapshot) {
+                    Timber.d("transaction:onComplete:$databaseError")
+                }
+            })
+        }
     }
 
-    fun removeVideo(postRef: DatabaseReference){
-        postRef.removeValue()
-    }
+    fun removeVideo(postRef: DatabaseReference) : Completable = Completable.fromAction { postRef.removeValue() }
+
 }
