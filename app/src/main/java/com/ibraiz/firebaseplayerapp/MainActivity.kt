@@ -3,56 +3,64 @@ package com.ibraiz.firebaseplayerapp
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.view.ViewPager
-import android.support.v4.app.FragmentPagerAdapter
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
-import com.google.firebase.database.DatabaseReference
-import com.ibraiz.firebaseplayerapp.models.VideoItem
-import com.ibraiz.firebaseplayerapp.utils.replaceFragment
+import android.support.v4.app.FragmentStatePagerAdapter
+import android.support.v4.view.PagerAdapter
+import com.ibraiz.firebaseplayerapp.view.SmartFragmentStatePagerAdapter
 import com.ibraiz.firebaseplayerapp.view.VideoCountFragment
 import com.ibraiz.firebaseplayerapp.view.VideoPlayerFragment
 import com.ibraiz.firebaseplayerapp.view.VideosListFragment
-import com.ibraiz.firebaseplayerapp.view.SmartFragmentStatePagerAdapter
-
-
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var mPagerAdapter: FragmentPagerAdapter
-    private lateinit var mViewPager: ViewPager
+    private lateinit var viewPagerVar: ViewPager
 
-    private lateinit var adapterViewPager: SmartFragmentStatePagerAdapter
-
+    private lateinit var adapterViewPager: FragmentStatePagerAdapter
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mPagerAdapter = object : FragmentPagerAdapter(supportFragmentManager) {
-            private val mFragments = arrayOf<Fragment>(VideosListFragment(), VideoCountFragment(), VideoPlayerFragment())
-            private val mFragmentNames = arrayOf("Vd Lst", "Vd Cnt", "Plyr")
-            override fun getItem(position: Int): Fragment {
-                return mFragments[position]
-            }
+        adapterViewPager = object : SmartFragmentStatePagerAdapter(supportFragmentManager) {
 
-            override fun getCount(): Int {
-                return mFragments.size
-            }
+            private val fragmentArray = arrayOf( VideosListFragment(), VideoCountFragment(), VideoPlayerFragment())
+            private val fragmentNames = arrayOf("VDS", "VDS CLKS", "PLYR")
 
-            override fun getPageTitle(position: Int): CharSequence? {
-                return mFragmentNames[position]
-            }
+            override fun getItem(position: Int): Fragment = fragmentArray[position]
+
+            override fun getCount(): Int = fragmentArray.size
+
+            override fun getPageTitle(position: Int): CharSequence? = fragmentNames[position]
+
+            /*override fun getItemPosition(`object`: Any): Int {
+                return when(`object`){
+                    VideosListFragment -> 0
+                    VideoCountFragment -> 1
+                    VideoPlayerFragment -> 2
+                    else -> PagerAdapter.POSITION_UNCHANGED
+                }
+            }*/
+
         }
         // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container)
-        mViewPager.adapter = mPagerAdapter
-        val tabLayout = findViewById<TabLayout>(R.id.tabs)
-        tabLayout.setupWithViewPager(mViewPager)
+        viewPagerVar = findViewById(R.id.container)
+        viewPagerVar.adapter = adapterViewPager
+        tabs.setupWithViewPager(viewPagerVar)
     }
 
-
+    /*{
+        0 // Fragment # 0 - This will show FirstFragment
+        -> VideosListFragment.newInstance(0, "Videos")
+        1 // Fragment # 0 - This will show FirstFragment different title
+        -> VideoCountFragment.newInstance(1, "Video Clicks")
+        2 // Fragment # 1 - This will show SecondFragment
+        -> VideoPlayerFragment.newInstance(2, "Vd Plyr")
+        else -> null
+    }*/
 
  /*   fun loadDatabase(firebaseDataRef: DatabaseReference) {
 

@@ -9,11 +9,13 @@ import android.widget.ArrayAdapter
 import android.widget.LinearLayout
 import android.widget.Toast
 import com.ibraiz.firebaseplayerapp.App
+import com.ibraiz.firebaseplayerapp.MainActivity
 import com.ibraiz.firebaseplayerapp.R
 import com.ibraiz.firebaseplayerapp.recyclerview.VideoListRecyclerviewAdapter
 import com.ibraiz.firebaseplayerapp.utils.inflate
 import com.ibraiz.firebaseplayerapp.utils.replaceFragment
 import com.ibraiz.firebaseplayerapp.utils.toast
+import com.ibraiz.firebaseplayerapp.utils.withArgs
 import com.ibraiz.firebaseplayerapp.viewmodels.VideosList
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -26,6 +28,7 @@ class VideosListFragment : MvvmFragment() {
     private val videoListViewModel = App.injectVideoListViewModel()
     private val firebaseRef = App.injectFirebaseDataRef()
 
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return container?.inflate(R.layout.videos_fragment, false)
     }
@@ -34,7 +37,7 @@ class VideosListFragment : MvvmFragment() {
         super.onStart()
         recyclerViewVideoList.apply {
             setHasFixedSize(false)
-            layoutManager = LinearLayoutManager(activity, LinearLayout.VERTICAL, false)
+            layoutManager = LinearLayoutManager(context, LinearLayout.VERTICAL, false)
 
         }
         subscribe(disposable = videoListViewModel.getVideos(firebaseRef)
@@ -58,7 +61,7 @@ class VideosListFragment : MvvmFragment() {
                     context?.toast("videoItem clicked :) "+it.videoName)
                     this.videoListViewModel.viewModelVideoItem = it
                     this.videoListViewModel.incCount(firebaseRef)
-                    startVideoPlayerFragment()
+                    //startVideoPlayerFragment()
                 }
             }
             data.error is ConnectException -> Timber.d("No connection, maybe inform user that data loaded from DB.")
@@ -68,12 +71,15 @@ class VideosListFragment : MvvmFragment() {
     }
 
     private fun startVideoPlayerFragment(){
-        val videoPlayerFragment = VideoPlayerFragment.newInstance()
+        this.replaceFragment(VideoPlayerFragment.newInstance(2,"PLYR"), R.layout.video_player_fragment)
     }
 
     companion object {
         private val TAG = "VideoListFragment"
 
-        @JvmStatic fun newInstance() = VideosListFragment()
+        @JvmStatic fun newInstance(page: Int, title: String ) = VideosListFragment().withArgs {
+            putInt("videolistpage", page)
+            putString("videolisttitle", title)
+        }
     }
 }

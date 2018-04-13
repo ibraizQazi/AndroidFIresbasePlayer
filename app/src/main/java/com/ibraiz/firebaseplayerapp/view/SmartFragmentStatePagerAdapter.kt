@@ -28,9 +28,4 @@ abstract class SmartFragmentStatePagerAdapter(fragmentManager: FragmentManager) 
     fun getRegisteredFragment(position: Int): Fragment {
         return registeredFragments.get(position)
     }
-
-    fun fetchFragmentByPosition(pagerInstance: ViewGroup, position: Int): Fragment {
-        val existingInstance = registeredFragments.get(position)
-        return existingInstance ?: instantiateItem(pagerInstance, position) as Fragment
-    }
 }

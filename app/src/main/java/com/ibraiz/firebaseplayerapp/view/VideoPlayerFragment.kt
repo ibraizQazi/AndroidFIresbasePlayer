@@ -7,13 +7,12 @@ import android.view.ViewGroup
 import com.ibraiz.firebaseplayerapp.R
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.ibraiz.firebaseplayerapp.App
-import com.ibraiz.firebaseplayerapp.utils.inflate
-import com.ibraiz.firebaseplayerapp.R.id.playerView
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.support.v4.app.Fragment
 import android.view.Surface
+import android.view.View.inflate
 import com.google.android.exoplayer2.*
-import kotlinx.android.synthetic.main.video_player_fragment.*
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.source.ExtractorMediaSource
@@ -22,21 +21,21 @@ import com.google.android.exoplayer2.decoder.DecoderCounters
 import com.google.android.exoplayer2.audio.AudioRendererEventListener
 import com.google.android.exoplayer2.util.Util
 import com.google.android.exoplayer2.video.VideoRendererEventListener
+import com.ibraiz.firebaseplayerapp.utils.withArgs
 import timber.log.Timber
+import com.google.android.exoplayer2.DefaultLoadControl
+import com.google.android.exoplayer2.DefaultRenderersFactory
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.ibraiz.firebaseplayerapp.utils.inflate
+import kotlinx.android.synthetic.main.video_player_fragment.*
 
 
-
-
-
-class VideoPlayerFragment : MvvmFragment(){
+class VideoPlayerFragment : Fragment(){
 
     private lateinit var videoUri: Uri
 
-    private val player by lazy {
-        ExoPlayerFactory.newSimpleInstance(
-                DefaultRenderersFactory(context),
-                DefaultTrackSelector(), DefaultLoadControl())
-    }
+    private lateinit var player: SimpleExoPlayer
+
     private val componentListener: ComponentListener = ComponentListener()
 
     private var playbackPosition: Long = 0
@@ -46,44 +45,26 @@ class VideoPlayerFragment : MvvmFragment(){
 
     private val videoListViewModel = App.injectVideoListViewModel()
 
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.video_player_fragment,container ,false)
+        return inflater.inflate(R.layout.video_player_fragment, container, false)
+    }
+
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+
+        savedInstanceState.putInt("current_window", currentWindow)
+        savedInstanceState.putLong("play_back_pos", playbackPosition)
+
     }
 
 
-    private fun initializePlayer () {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        if (savedInstanceState != null) {
+            playbackPosition = savedInstanceState.getLong("play_back_pos")
+            currentWindow = savedInstanceState.getInt("current_window")
+        }
 
-        videoPlayerView.player = player
-        player.playWhenReady = this.playWhenReady
-        player.seekTo(currentWindow,playbackPosition)
-        videoUri = Uri.parse(videoListViewModel.viewModelVideoItem.videoLink)
-        val mediaSource = buildMediaSource(videoUri)
-        player.prepare(mediaSource, true, false)
-    }
-
-    private fun releasePlayer() {
-        playbackPosition = player.currentPosition
-        currentWindow = player.currentWindowIndex
-        playWhenReady = player.playWhenReady
-        player.removeListener(componentListener)
-        player.removeVideoDebugListener(componentListener)
-        player.removeAudioDebugListener(componentListener)
-        player.release()
-    }
-    private fun buildMediaSource(uri: Uri): MediaSource {
-        return ExtractorMediaSource.Factory(
-                DefaultHttpDataSourceFactory("exoplayer-codelab")).createMediaSource(uri)
-    }
-
-    @SuppressLint("InlinedApi")
-    private fun hideSystemUi() {
-        videoPlayerView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
     }
 
     override fun onStart() {
@@ -115,10 +96,51 @@ class VideoPlayerFragment : MvvmFragment(){
         }
     }
 
+    private fun initializePlayer () {
+
+        player = ExoPlayerFactory.newSimpleInstance(
+                DefaultRenderersFactory(context),
+                DefaultTrackSelector(), DefaultLoadControl())
+
+        playerView.player = player
+        player.playWhenReady = this.playWhenReady
+        player.seekTo(currentWindow,playbackPosition)
+        videoUri = /*Uri.parse(videoListViewModel.viewModelVideoItem.videoLink) ?:*/ Uri.parse("https://player.vimeo.com/external/257512761.hd.mp4?s=2f4ede50164f921df0e039f7e11281ebe665a9fc&profile_id=175")
+        val mediaSource = buildMediaSource(videoUri)
+        player.prepare(mediaSource, true, false)
+    }
+
+    private fun releasePlayer() {
+        playbackPosition = player.currentPosition
+        currentWindow = player.currentWindowIndex
+        playWhenReady = player.playWhenReady
+        player.removeListener(componentListener)
+        player.removeVideoDebugListener(componentListener)
+        player.removeAudioDebugListener(componentListener)
+        player.release()
+    }
+    private fun buildMediaSource(uri: Uri): MediaSource {
+        return ExtractorMediaSource.Factory(
+                DefaultHttpDataSourceFactory("exoplayer-codelab")).createMediaSource(uri)
+    }
+
+    @SuppressLint("InlinedApi")
+    private fun hideSystemUi() {
+        playerView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION)
+    }
+
     companion object {
-        private val TAG = "VideoPlayerFragment"
+        private const val TAG = "VideoPlayerFragment"
         private var BANDWIDTH_METER = DefaultBandwidthMeter()
-        @JvmStatic fun newInstance() = VideoPlayerFragment()
+        @JvmStatic fun newInstance(page: Int, url: String) = VideoPlayerFragment().withArgs {
+            putInt("videoplayerpage", page)
+            putString("videoplayerurl", url)
+        }
     }
 
     private inner class ComponentListener : Player.DefaultEventListener(), VideoRendererEventListener, AudioRendererEventListener {

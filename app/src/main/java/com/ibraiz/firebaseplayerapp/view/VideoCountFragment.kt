@@ -12,6 +12,7 @@ import com.ibraiz.firebaseplayerapp.R
 import com.ibraiz.firebaseplayerapp.recyclerview.VideoListRecyclerviewAdapter
 import com.ibraiz.firebaseplayerapp.utils.inflate
 import com.ibraiz.firebaseplayerapp.utils.toast
+import com.ibraiz.firebaseplayerapp.utils.withArgs
 import com.ibraiz.firebaseplayerapp.viewmodels.VideosList
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -67,7 +68,9 @@ class VideoCountFragment : MvvmFragment() {
 
     companion object {
         private val TAG = "VideoCountFragment"
-        @JvmStatic fun newInstance() = VideoCountFragment()
-
+        @JvmStatic fun newInstance(page: Int, title: String) = VideoCountFragment().withArgs {
+            putInt("videocountpage", page)
+            putString("videocounttitle", title)
+        }
     }
 }

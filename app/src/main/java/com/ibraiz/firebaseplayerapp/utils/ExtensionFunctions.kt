@@ -5,6 +5,7 @@ package com.ibraiz.firebaseplayerapp.utils
 import android.app.Activity
 import android.content.Context
 import android.net.ConnectivityManager
+import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
@@ -19,8 +20,17 @@ fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View {
     return LayoutInflater.from(context).inflate(layoutId, this, attachToRoot)
 }
 
+inline fun <T: Fragment> T.withArgs(argsBuilder: Bundle.() -> Unit): T =
+    this.apply {
+        arguments = Bundle().apply(argsBuilder)
+    }
+
 inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
-    beginTransaction().func().commit()
+    beginTransaction().func().addToBackStack(null).commit()
+}
+
+fun Fragment.replaceFragment(fragment: Fragment, frameId: Int) {
+    fragmentManager?.inTransaction { replace(frameId, fragment) }
 }
 
 fun AppCompatActivity.addFragment(fragment: Fragment, frameId: Int){
